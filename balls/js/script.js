@@ -17,8 +17,8 @@ function init() {
 	//scene
 	scene = new THREE.Scene();
 	camera = new THREE.PerspectiveCamera(40, window.innerWidth/window.innerHeight, 1, 1000);
-	camera.position.set(0,-50,200);
-	camera.lookAt(new THREE.Vector3(0,0,0));
+	camera.position.set(0,-75,500);
+	camera.lookAt(new THREE.Vector3(0,-75,0));
 
 	controls = new THREE.TrackballControls(camera);
 	controls.noZoom = false;
@@ -31,7 +31,7 @@ function init() {
 	//world
 	world = new CANNON.World();
 	world.broadphase = new CANNON.NaiveBroadphase();
-	world.gravity.set(0,-100,0);
+	world.gravity.set(0,-9.82,0);
 
 	//sphere
 	geometry = new THREE.SphereGeometry(1, 32, 32);
@@ -57,7 +57,7 @@ function init() {
 
 	var planeBody3 = new CANNON.RigidBody(0, planeShape, cMaterial);
 	planeBody3.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0), -Math.PI/2);
-	planeBody3.position.set(0,-25,0);
+	planeBody3.position.set(0,-100,0);
 	world.add(planeBody3);
 
 	var planeBody4 = new CANNON.RigidBody(0, planeShape, cMaterial);
@@ -77,13 +77,16 @@ function createSphere(x , y, z) {
 }
 
 function update() {
-	if(scene.children.length < 200) {
+	if(scene.children.length < 500) {
 		createSphere(Math.random() * 10, 10 + Math.random() * 10, Math.random() * 10);
 	}
 
-	var rand = Math.random() * 100 - Math.random() * 100;
-
-	world.gravity.set( rand - rand * rand / 100, rand, 0);
+	for(var i=scene.children.length; i>=0;i--) {
+		if(world.bodies[i].position.y < -95 ) {
+			world.remove(world.bodies[i]);
+			scene.remove(scene.children[i]);
+		}
+	}
 
 	for(var i=0,j=scene.children.length;i<j;i++) {
 		world.bodies[i].position.copy(scene.children[i].position);
